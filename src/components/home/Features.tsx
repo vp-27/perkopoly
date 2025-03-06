@@ -57,7 +57,7 @@ const Features: React.FC = () => {
     {
       icon: <Clock className="h-8 w-8 text-primary" />,
       title: 'Usage History',
-      description: 'Track when and where you've used your rewards for better management.'
+      description: "Track when and where you've used your rewards for better management."
     }
   ];
 
