@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -27,7 +26,12 @@ const registerSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 type RegisterValues = z.infer<typeof registerSchema>;
 
-const AuthForm: React.FC = () => {
+// Define props interface for AuthForm
+interface AuthFormProps {
+  initialMode: "signin" | "signup";
+}
+
+const AuthForm: React.FC<AuthFormProps> = ({ initialMode }) => {
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -119,13 +123,13 @@ const AuthForm: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue={initialMode} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="login">Sign In</TabsTrigger>
-              <TabsTrigger value="register">Create Account</TabsTrigger>
+              <TabsTrigger value="signin">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Create Account</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="login">
+            <TabsContent value="signin">
               <Form {...loginForm}>
                 <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
                   <FormField
@@ -188,7 +192,7 @@ const AuthForm: React.FC = () => {
               </Form>
             </TabsContent>
             
-            <TabsContent value="register">
+            <TabsContent value="signup">
               <Form {...registerForm}>
                 <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                   <FormField
