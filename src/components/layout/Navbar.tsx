@@ -1,14 +1,17 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, User, Settings } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, LogIn, User, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // This would normally come from your auth context
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check if the current path matches the link path
   const isActive = (path: string) => {
@@ -27,9 +30,32 @@ export const Navbar = () => {
     };
   }, []);
 
-  // Mock function to toggle auth state (for demo purposes)
-  const toggleAuth = () => {
-    setIsAuthenticated(!isAuthenticated);
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = () => {
+      const userData = localStorage.getItem('perkpal_user');
+      setIsAuthenticated(!!userData);
+    };
+    
+    checkAuth();
+    
+    // Set up event listener for storage changes (for multi-tab support)
+    window.addEventListener('storage', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, [location.pathname]);
+
+  // Handle sign out
+  const handleSignOut = () => {
+    localStorage.removeItem('perkpal_user');
+    setIsAuthenticated(false);
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+    navigate('/');
   };
 
   return (
@@ -75,6 +101,10 @@ export const Navbar = () => {
                     <span>Settings</span>
                   </Button>
                 </Link>
+                <Button variant="outline" size="sm" className="flex items-center" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  <span>Sign Out</span>
+                </Button>
                 <Link to="/dashboard">
                   <Button variant="default" size="sm" className="flex items-center">
                     <User className="w-4 h-4 mr-2" />
@@ -84,23 +114,14 @@ export const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link to="/dashboard">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={toggleAuth} // For demo purposes
-                    className="flex items-center"
-                  >
+                <Link to="/signin">
+                  <Button variant="outline" size="sm" className="flex items-center">
                     <LogIn className="w-4 h-4 mr-2" />
                     <span>Sign In</span>
                   </Button>
                 </Link>
-                <Link to="/dashboard">
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    onClick={toggleAuth} // For demo purposes
-                  >
+                <Link to="/signin">
+                  <Button variant="default" size="sm">
                     Get Started
                   </Button>
                 </Link>
@@ -179,6 +200,18 @@ export const Navbar = () => {
                       <span>Settings</span>
                     </Button>
                   </Link>
+                  <div
+                    className="block px-3 py-2 rounded-md"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleSignOut();
+                    }}
+                  >
+                    <Button variant="outline" size="sm" className="w-full justify-start">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      <span>Sign Out</span>
+                    </Button>
+                  </div>
                   <Link
                     to="/dashboard"
                     className="block px-3 py-2 rounded-md"
@@ -193,12 +226,9 @@ export const Navbar = () => {
               ) : (
                 <div className="space-y-2">
                   <Link
-                    to="/dashboard"
+                    to="/signin"
                     className="block px-3 py-2 rounded-md"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      toggleAuth(); // For demo purposes
-                    }}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Button variant="outline" size="sm" className="w-full justify-start">
                       <LogIn className="w-4 h-4 mr-2" />
@@ -206,12 +236,9 @@ export const Navbar = () => {
                     </Button>
                   </Link>
                   <Link
-                    to="/dashboard"
+                    to="/signin"
                     className="block px-3 py-2 rounded-md"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      toggleAuth(); // For demo purposes
-                    }}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Button variant="default" size="sm" className="w-full">
                       Get Started

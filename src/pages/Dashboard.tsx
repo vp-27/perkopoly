@@ -1,95 +1,112 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard, LogOut, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import RewardsOverview from '@/components/dashboard/RewardsOverview';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dashboard as DashboardIcon, CreditCard, Settings, Bell } from 'lucide-react';
-import AuthForm from '@/components/auth/AuthForm';
+import AccountsSection from '@/components/dashboard/AccountsSection';
+import PartnerSection from '@/components/dashboard/PartnerSection';
+
+interface UserData {
+  name: string;
+  email: string;
+  id: string;
+}
 
 const Dashboard: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = React.useState(true); // Normally would come from auth context
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // For demo purposes, allow toggling auth state
-  const toggleAuth = () => {
-    setIsAuthenticated(!isAuthenticated);
+  useEffect(() => {
+    // Check if the user is logged in
+    const storedUser = localStorage.getItem('perkpal_user');
+    
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUserData(parsedUser);
+      } catch (error) {
+        console.error('Failed to parse user data:', error);
+      }
+    } else {
+      // Redirect to sign-in if not logged in
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to access your dashboard.",
+        variant: "destructive",
+      });
+      navigate('/signin');
+    }
+    
+    setLoading(false);
+  }, [navigate, toast]);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('perkpal_user');
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+    navigate('/signin');
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-background page-transition">
+    <div className="min-h-screen flex flex-col page-transition">
       <Navbar />
-      <main className="flex-grow pt-24 pb-12">
-        {isAuthenticated ? (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold">Your Rewards Dashboard</h1>
-              <p className="text-muted-foreground">
-                Track and manage all your loyalty programs in one place
-              </p>
+      <main className="flex-grow py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        {userData && (
+          <>
+            <div className="frosted-glass rounded-xl p-6 mb-8">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/10 rounded-full p-3">
+                    <User className="h-8 w-8 text-primary" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold">Welcome, {userData.name}</h1>
+                    <p className="text-muted-foreground">{userData.email}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => navigate('/profile')}>
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                  <Button variant="outline" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              </div>
             </div>
-            
-            <Tabs defaultValue="overview" className="space-y-8">
-              <TabsList className="bg-secondary/50 backdrop-blur-sm">
-                <TabsTrigger value="overview" className="flex items-center">
-                  <DashboardIcon className="h-4 w-4 mr-2" />
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger value="cards" className="flex items-center">
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Cards
-                </TabsTrigger>
-                <TabsTrigger value="notifications" className="flex items-center">
-                  <Bell className="h-4 w-4 mr-2" />
-                  Notifications
-                </TabsTrigger>
-                <TabsTrigger value="settings" className="flex items-center">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="overview" className="animate-fade-in">
+
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-6 flex items-center">
+                  <LayoutDashboard className="mr-2 h-6 w-6 text-primary" />
+                  Your Dashboard
+                </h2>
                 <RewardsOverview />
-              </TabsContent>
+              </div>
               
-              <TabsContent value="cards" className="animate-fade-in">
-                <div className="glass-card p-8 rounded-xl text-center">
-                  <h3 className="text-xl font-semibold mb-4">Cards Management</h3>
-                  <p className="text-muted-foreground">
-                    This section is under development. Check back soon for managing your physical and digital cards.
-                  </p>
-                </div>
-              </TabsContent>
+              <AccountsSection />
               
-              <TabsContent value="notifications" className="animate-fade-in">
-                <div className="glass-card p-8 rounded-xl text-center">
-                  <h3 className="text-xl font-semibold mb-4">Notifications Center</h3>
-                  <p className="text-muted-foreground">
-                    This section is under development. Soon you'll be able to configure notifications for expiring rewards and special offers.
-                  </p>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="settings" className="animate-fade-in">
-                <div className="glass-card p-8 rounded-xl text-center">
-                  <h3 className="text-xl font-semibold mb-4">Account Settings</h3>
-                  <p className="text-muted-foreground mb-4">
-                    This section is under development. Soon you'll be able to customize your preferences and manage your account settings.
-                  </p>
-                  <button 
-                    onClick={toggleAuth}
-                    className="text-primary hover:underline"
-                  >
-                    Sign Out (Demo)
-                  </button>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        ) : (
-          <div className="max-w-md mx-auto px-4">
-            <AuthForm />
-          </div>
+              <PartnerSection />
+            </div>
+          </>
         )}
       </main>
       <Footer />

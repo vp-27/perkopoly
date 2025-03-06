@@ -33,7 +33,7 @@ const Hero: React.FC = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 animate-fade-in">
-            <Link to="/dashboard">
+            <Link to="/signin">
               <Button size="lg" className="w-full sm:w-auto">
                 Get Started <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
