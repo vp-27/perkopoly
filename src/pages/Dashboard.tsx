@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import RewardsOverview from '@/components/dashboard/RewardsOverview';
 import AccountsSection from '@/components/dashboard/AccountsSection';
 import PartnerSection from '@/components/dashboard/PartnerSection';
 
@@ -74,12 +73,12 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col page-transition">
       <Navbar />
-      <main className="flex-grow py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <main className="flex-grow py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full mt-8">
         {userData && (
           <>
             <div className="frosted-glass rounded-xl p-6 mb-8">
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-4 xl:col-span-1">
+                <div className="lg:col-span-1">
                   <div className="flex items-center gap-4">
                     <div className="bg-primary/10 rounded-full p-3">
                       <User className="h-8 w-8 text-primary" />
@@ -151,7 +150,7 @@ const Dashboard: React.FC = () => {
                   <LayoutDashboard className="mr-2 h-6 w-6 text-primary" />
                   Your Dashboard
                 </h2>
-                <RewardsOverview />
+                {/* Removed duplicated RewardsOverview here and now importing it only once in the components section */}
               </div>
               
               <AccountsSection />
