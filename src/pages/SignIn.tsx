@@ -15,7 +15,7 @@ const SignIn: React.FC = () => {
           <div className="absolute top-[60%] -left-[10%] w-[50%] h-[60%] bg-primary/5 rounded-full blur-3xl" />
         </div>
         
-        <AuthForm initialMode="signin" />
+        <AuthForm />
       </main>
       <Footer />
     </div>
