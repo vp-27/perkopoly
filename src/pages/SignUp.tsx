@@ -4,7 +4,7 @@ import AuthForm from '@/components/auth/AuthForm';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
-const SignIn: React.FC = () => {
+const SignUp: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col page-transition">
       <Navbar />
@@ -15,11 +15,11 @@ const SignIn: React.FC = () => {
           <div className="absolute top-[60%] -left-[10%] w-[50%] h-[60%] bg-primary/5 rounded-full blur-3xl" />
         </div>
         
-        <AuthForm initialMode="signin" />
+        <AuthForm initialMode="signup" />
       </main>
       <Footer />
     </div>
   );
 };
 
-export default SignIn;
+export default SignUp;
